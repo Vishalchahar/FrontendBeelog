@@ -1,6 +1,6 @@
 import React from "react";
 
-export const Login = () => {
+const Login = () => {
   return (
     <div>
       <section class="h-screen">
@@ -146,3 +146,5 @@ export const Login = () => {
     </div>
   );
 };
+
+export default Login;

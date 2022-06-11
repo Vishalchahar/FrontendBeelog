@@ -1,9 +1,123 @@
 import React from "react";
 import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 
 const Profile = () => {
   const router = useRouter();
-  const id = 1;
+  const id = 2;
+  const [userProfile, setUserProfile] = useState([]);
+  const [userPostsDetails, setUserPostsDetails] = useState([]);
+
+  const deleteHandler = async (pid) => {
+    const res = await fetch(`http://0.0.0.0:8000/deletepost/${pid}`, {
+      method: "DELETE", // or 'PUT'
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, OPTIONS",
+      },
+    });
+
+    const data = await res.text();
+  };
+
+  const fetchUserData = async () => {
+    try {
+      const responseUser = await fetch(`http://0.0.0.0:8000/login/${id}`, {
+        method: "GET", // or 'PUT'
+        headers: {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Credentials": "true",
+          "Access-Control-Allow-Methods": "GET, POST, PUT, OPTIONS",
+        },
+      });
+
+      if (!responseUser.ok) {
+        throw new Error("Something went wrong!");
+      }
+
+      const dataUser = await responseUser.json();
+
+      // console.log(dataUser.id);
+      const responseProfile = await fetch(
+        `http://0.0.0.0:8000/profile/${dataUser.id}`,
+        {
+          method: "GET", // or 'PUT'
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Allow-Methods": "GET, POST, PUT, OPTIONS",
+          },
+        }
+      );
+      if (!responseProfile.ok) {
+        throw new Error("Something went wrong!");
+      }
+      const dataProfile = await responseProfile.json();
+      // console.log(dataProfile);
+
+      // console.log(dataUser.user_name);
+
+      const responseUserPosts = await fetch(
+        `http://0.0.0.0:8000/userposts/${id}`,
+        {
+          method: "GET", // or 'PUT'
+          headers: {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Credentials": "true",
+            "Access-Control-Allow-Methods": "GET, POST, PUT, OPTIONS",
+          },
+        }
+      );
+
+      const dataUserPosts = await responseUserPosts.json();
+      const userDetails = [];
+      const splitTime = dataProfile.created_at.split("T");
+      // console.log(splitTime[0]);
+
+      console.log(dataUserPosts);
+
+      // console.log(dataUserPost);
+      userDetails.push({
+        userName: dataUser.user_name,
+        firstName: dataProfile.first_name,
+        lastName: dataProfile.last_name,
+        desc: dataProfile.user_description,
+        gender: dataProfile.gender,
+        email: dataUser.email,
+        created_at: splitTime[0],
+        // openingText  data.Search[c].Year,
+        // releaseDate : data.Search[c].Year,
+      });
+      const dataUserPost = [];
+
+      dataUserPosts.map((item) => {
+        const splitTimeblog = item.created_at.split("T");
+        dataUserPost.push({
+          id: item.id,
+          title: item.title_of_post,
+          image: item.image,
+          // authorName: dataUser.user_name,
+          created_at: splitTimeblog[0],
+          // openingText  data.Search[c].Year,
+          // releaseDate : data.Search[c].Year,
+        });
+      });
+
+      // console.log(userDetails);
+      setUserProfile(userDetails[0]);
+      console.log(dataUserPost);
+      setUserPostsDetails(dataUserPost);
+    } catch (e) {}
+  };
+
+  useEffect(() => {
+    fetchUserData();
+  }, []);
 
   return (
     <>
@@ -39,16 +153,14 @@ const Profile = () => {
                             alt=""> */}
           {/* </div> */}
           <h1 class="text-gray-900 font-bold text-xl leading-8 my-1">
-            Jane Doe
+            {userProfile.userName}
           </h1>
           <h3 class="text-gray-600 font-lg text-semibold leading-6">
-            Owner at Her Company Inc.
+            {userProfile.desc}
           </h3>
-          <p class="text-sm text-gray-500 hover:text-gray-600 leading-6">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit.
-            Reprehenderit, eligendi dolorum sequi illum qui unde aspernatur non
-            deserunt
-          </p>
+          {/* <p class="text-sm text-gray-500 hover:text-gray-600 leading-6">
+            {}
+          </p> */}
         </div>
         <ul class="bg-gray-100 text-gray-600 hover:text-gray-700 hover:shadow py-2 px-3 mt-3 divide-y rounded shadow-sm">
           {/* <li class="flex items-center py-3"> */}
@@ -61,7 +173,7 @@ const Profile = () => {
           {/* </li> */}
           <li className="flex items-center py-3">
             <span>Member since: </span>
-            <span className="ml-2"> Nov 07, 2016</span>
+            <span className="ml-2">{userProfile.created_at}</span>
           </li>
         </ul>
       </div>
@@ -89,240 +201,114 @@ const Profile = () => {
           <div className="grid md:grid-cols-2 text-sm">
             <div className="grid grid-cols-2">
               <div className="px-4 py-2 font-semibold">First Name</div>
-              <div className="px-4 py-2">Jane</div>
+              <div className="px-4 py-2">{userProfile.firstName}</div>
             </div>
             <div className="grid grid-cols-2">
               <div className="px-4 py-2 font-semibold">Last Name</div>
-              <div className="px-4 py-2">Doe</div>
+              <div className="px-4 py-2">{userProfile.lastName}</div>
             </div>
             <div className="grid grid-cols-2">
               <div className="px-4 py-2 font-semibold">Gender</div>
-              <div className="px-4 py-2">Female</div>
+              <div className="px-4 py-2">{userProfile.gender}</div>
             </div>
-            <div className="grid grid-cols-2">
+            {/* <div className="grid grid-cols-2">
               <div className="px-4 py-2 font-semibold">Contact No.</div>
               <div className="px-4 py-2">+11 998001001</div>
-            </div>
-            <div className="grid grid-cols-2">
+            </div> */}
+            {/* <div className="grid grid-cols-2">
               <div className="px-4 py-2 font-semibold">Current Address</div>
               <div className="px-4 py-2">Beech Creek, PA, Pennsylvania</div>
-            </div>
-            <div className="grid grid-cols-2">
+            </div> */}
+            {/* <div className="grid grid-cols-2">
               <div className="px-4 py-2 font-semibold">Permanant Address</div>
               <div className="px-4 py-2">Arlington Heights, IL, Illinois</div>
-            </div>
+            </div> */}
             <div className="grid grid-cols-2">
               <div className="px-4 py-2 font-semibold">Email.</div>
               <div className="px-4 py-2">
                 <a className="text-blue-800" href="mailto:jane@example.com">
-                  jane@example.com
+                  {userProfile.email}
                 </a>
               </div>
             </div>
-            <div className="grid grid-cols-2">
+            {/* <div className="grid grid-cols-2">
               <div className="px-4 py-2 font-semibold">Birthday</div>
               <div className="px-4 py-2">Feb 06, 1998</div>
-            </div>
+            </div> */}
           </div>
         </div>
         {/* <button class="block w-full text-blue-800 text-sm font-semibold rounded-lg hover:bg-gray-100 focus:outline-none focus:shadow-outline focus:bg-gray-100 hover:shadow-xs p-3 my-4">
           Show Full Information
         </button> */}
       </div>
-      <div className="flex justify-self-auto flex-wrap">
-        <div class="my-1 px-1 w-full md:w-1/2 lg:my-4 lg:px-4 lg:w-1/3">
-          <article class="overflow-hidden rounded-lg shadow-lg">
-            <a href="#">
-              <img
-                alt="Placeholder"
-                class="block h-auto w-full"
-                src="https://images.unsplash.com/photo-1634055980590-1a44e5a8b3e4?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1740&q=80"
-              />
-            </a>
+      {userPostsDetails.map((item) => {
+        return (
+          <>
+            <div className="flex justify-self-auto flex-wrap">
+              <div class="my-1 px-1 w-full md:w-1/2 lg:my-4 lg:px-4 lg:w-1/3">
+                <article class="overflow-hidden rounded-lg shadow-lg">
+                  <a href="#">
+                    <img
+                      alt="Placeholder"
+                      class="block h-auto w-full"
+                      src={item.image}
+                    />
+                  </a>
 
-            <header class="flex items-center justify-between leading-tight p-2 md:p-4">
-              <h1 class="text-lg">
-                <a class="no-underline hover:underline text-black" href="#">
-                  picking up girls
-                </a>
-              </h1>
-              <p class="text-grey-darker text-sm">14/4/19</p>
-            </header>
+                  <header class="flex items-center justify-between leading-tight p-2 md:p-4">
+                    <h1 class="text-lg">
+                      <a
+                        class="no-underline hover:underline text-black"
+                        href="#"
+                      >
+                        {item.title}
+                      </a>
+                    </h1>
+                    <p class="text-grey-darker text-sm">{item.created_at}</p>
+                  </header>
 
-            <footer class="flex items-center justify-between leading-none p-2 md:p-4">
-              <a
-                class="flex items-center no-underline hover:underline text-black"
-                href="#"
-              >
-                {/* <img alt="Placeholder" class="block rounded-full" src="https://picsum.photos/32/32/?random"> */}
-                <p class="ml-2 text-sm">Mystry</p>
-              </a>
+                  <footer class="flex items-center justify-between leading-none p-2 md:p-4">
+                    <a
+                      class="flex items-center no-underline hover:underline text-black"
+                      href="#"
+                    >
+                      {/* <img alt="Placeholder" class="block rounded-full" src="https://picsum.photos/32/32/?random"> */}
+                      {/* <p class="ml-2 text-sm">Mystry</p> */}
+                    </a>
 
-              <a
-                class="no-underline text-grey-darker hover:text-red-dark"
-                href="#"
-              >
-                <button
-                  onClick={() => router.push(`/components/EditBlog/${id}`)}
-                  class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full"
-                >
-                  Edit
-                </button>
-                <span class="hidden">Like</span>
-                <i class="fa fa-heart"></i>
-              </a>
-            </footer>
-          </article>
-        </div>
-        <div class="my-1 px-1 w-full md:w-1/2 lg:my-4 lg:px-4 lg:w-1/3">
-          <article class="overflow-hidden rounded-lg shadow-lg">
-            <a href="#">
-              <img
-                alt="Placeholder"
-                class="block h-auto w-full"
-                src="https://images.unsplash.com/photo-1634055980590-1a44e5a8b3e4?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1740&q=80"
-              />
-            </a>
+                    <a
+                      class="no-underline text-grey-darker hover:text-red-dark"
+                      href="#"
+                    >
+                      <button
+                        onClick={() =>
+                          router.push(`/components/EditBlog/${id}`)
+                        }
+                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full mr-2"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => deleteHandler(item.id)}
+                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full"
+                      >
+                        Delete
+                      </button>
+                      <span class="hidden">Like</span>
+                      <i class="fa fa-heart"></i>
+                    </a>
+                  </footer>
+                </article>
+              </div>
+            </div>
+          </>
+        );
+      })}
 
-            <header class="flex items-center justify-between leading-tight p-2 md:p-4">
-              <h1 class="text-lg">
-                <a class="no-underline hover:underline text-black" href="#">
-                  picking up girls
-                </a>
-              </h1>
-              <p class="text-grey-darker text-sm">14/4/19</p>
-            </header>
-
-            <footer class="flex items-center justify-between leading-none p-2 md:p-4">
-              <a
-                class="flex items-center no-underline hover:underline text-black"
-                href="#"
-              >
-                {/* <img alt="Placeholder" class="block rounded-full" src="https://picsum.photos/32/32/?random"> */}
-                <p class="ml-2 text-sm">Mystry</p>
-              </a>
-              <a
-                class="no-underline text-grey-darker hover:text-red-dark"
-                href="#"
-              >
-                <span class="hidden">Like</span>
-                <i class="fa fa-heart"></i>
-              </a>
-            </footer>
-          </article>
-        </div>
-        <div class="my-1 px-1 w-full md:w-1/2 lg:my-4 lg:px-4 lg:w-1/3">
-          <article class="overflow-hidden rounded-lg shadow-lg">
-            <a href="#">
-              <img
-                alt="Placeholder"
-                class="block h-auto w-full"
-                src="https://images.unsplash.com/photo-1634055980590-1a44e5a8b3e4?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1740&q=80"
-              />
-            </a>
-
-            <header class="flex items-center justify-between leading-tight p-2 md:p-4">
-              <h1 class="text-lg">
-                <a class="no-underline hover:underline text-black" href="#">
-                  picking up girls
-                </a>
-              </h1>
-              <p class="text-grey-darker text-sm">14/4/19</p>
-            </header>
-
-            <footer class="flex items-center justify-between leading-none p-2 md:p-4">
-              <a
-                class="flex items-center no-underline hover:underline text-black"
-                href="#"
-              >
-                {/* <img alt="Placeholder" class="block rounded-full" src="https://picsum.photos/32/32/?random"> */}
-                <p class="ml-2 text-sm">Mystry</p>
-              </a>
-              <a
-                class="no-underline text-grey-darker hover:text-red-dark"
-                href="#"
-              >
-                <span class="hidden">Like</span>
-                <i class="fa fa-heart"></i>
-              </a>
-            </footer>
-          </article>
-        </div>
-        <div class="my-1 px-1 w-full md:w-1/2 lg:my-4 lg:px-4 lg:w-1/3">
-          <article class="overflow-hidden rounded-lg shadow-lg">
-            <a href="#">
-              <img
-                alt="Placeholder"
-                class="block h-auto w-full"
-                src="https://images.unsplash.com/photo-1634055980590-1a44e5a8b3e4?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1740&q=80"
-              />
-            </a>
-
-            <header class="flex items-center justify-between leading-tight p-2 md:p-4">
-              <h1 class="text-lg">
-                <a class="no-underline hover:underline text-black" href="#">
-                  picking up girls
-                </a>
-              </h1>
-              <p class="text-grey-darker text-sm">14/4/19</p>
-            </header>
-
-            <footer class="flex items-center justify-between leading-none p-2 md:p-4">
-              <a
-                class="flex items-center no-underline hover:underline text-black"
-                href="#"
-              >
-                {/* <img alt="Placeholder" class="block rounded-full" src="https://picsum.photos/32/32/?random"> */}
-                <p class="ml-2 text-sm">Mystry</p>
-              </a>
-              <a
-                class="no-underline text-grey-darker hover:text-red-dark"
-                href="#"
-              >
-                <span class="hidden">Like</span>
-                <i class="fa fa-heart"></i>
-              </a>
-            </footer>
-          </article>
-        </div>
-        <div class="my-1 px-1 w-full md:w-1/2 lg:my-4 lg:px-4 lg:w-1/3">
-          <article class="overflow-hidden rounded-lg shadow-lg">
-            <a href="#">
-              <img
-                alt="Placeholder"
-                class="block h-auto w-full"
-                src="https://images.unsplash.com/photo-1634055980590-1a44e5a8b3e4?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1740&q=80"
-              />
-            </a>
-
-            <header class="flex items-center justify-between leading-tight p-2 md:p-4">
-              <h1 class="text-lg">
-                <a class="no-underline hover:underline text-black" href="#">
-                  picking up girls
-                </a>
-              </h1>
-              <p class="text-grey-darker text-sm">14/4/19</p>
-            </header>
-
-            <footer class="flex items-center justify-between leading-none p-2 md:p-4">
-              <a
-                class="flex items-center no-underline hover:underline text-black"
-                href="#"
-              >
-                {/* <img alt="Placeholder" class="block rounded-full" src="https://picsum.photos/32/32/?random"> */}
-                <p class="ml-2 text-sm">Mystry</p>
-              </a>
-              <a
-                class="no-underline text-grey-darker hover:text-red-dark"
-                href="#"
-              >
-                <span class="hidden">Like</span>
-                <i class="fa fa-heart"></i>
-              </a>
-            </footer>
-          </article>
-        </div>
-      </div>
+      {/* <div class="my-1 px-1 w-full md:w-1/2 lg:my-4 lg:px-4 lg:w-1/3"></div>
+      <div class="my-1 px-1 w-full md:w-1/2 lg:my-4 lg:px-4 lg:w-1/3"></div> */}
+      {/* <div class="my-1 px-1 w-full md:w-1/2 lg:my-4 lg:px-4 lg:w-1/3"></div> */}
+      {/* <div class="my-1 px-1 w-full md:w-1/2 lg:my-4 lg:px-4 lg:w-1/3"></div> */}
     </>
   );
 };

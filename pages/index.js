@@ -48,18 +48,19 @@ export default function Home() {
       // console.log(data.Search[0].imdbID)
 
       // console.log(data.Search[0])
+      const splitTime = data[0].created_at.split("T");
 
       data.map((item) => {
         loadedBlogs.push({
           postId: item.id,
           title: item.title_of_post,
           image: item.image,
-          created_at: item.created_at,
+          created_at: splitTime[0],
           // openingText  data.Search[c].Year,
           // releaseDate : data.Search[c].Year,
         });
       });
-      console.log(loadedBlogs);
+      // console.log(loadedBlogs);
 
       // c++
 

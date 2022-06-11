@@ -6,60 +6,61 @@ function classNames(...classes) {
 }
 export default function NavBar() {
   const id = 1;
-  const userDatafetchHandler = async () => {
-    // console.log(`in fetch ${searchedMovie}`)
-    try {
-      // console.log(id);
+  //   const userDatafetchHandler = async () => {
+  //     // console.log(`in fetch ${searchedMovie}`)
+  //     try {
+  //       // console.log(id);
 
-      const responseUser = await fetch(`http://0.0.0.0:8000/login/${id}`, {
-        method: "GET", // or 'PUT'
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Credentials": "true",
-          "Access-Control-Allow-Methods": "GET, POST, PUT, OPTIONS",
-        },
-      });
+  //       const responseUser = await fetch(`http://0.0.0.0:8000/login/${id}`, {
+  //         method: "GET", // or 'PUT'
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           "Access-Control-Allow-Origin": "*",
+  //           "Access-Control-Allow-Credentials": "true",
+  //           "Access-Control-Allow-Methods": "GET, POST, PUT, OPTIONS",
+  //         },
+  //       });
 
-      if (!responseUser.ok) {
-        throw new Error("Something went wrong!");
-      }
+  //       if (!responseUser.ok) {
+  //         throw new Error("Something went wrong!");
+  //       }
 
-      const dataUser = await responseUser.json();
+  //       const dataUser = await responseUser.json();
 
-      // console.log(dataUser.user_name);
+  //       // console.log(dataUser.user_name);
 
-      const responsePost = await fetch(`http://0.0.0.0:8000/posts/${id}`, {
-        method: "GET", // or 'PUT'
-        headers: {
-          "Content-Type": "application/json",
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Credentials": "true",
-          "Access-Control-Allow-Methods": "GET, POST, PUT, OPTIONS",
-        },
-      });
-      if (!responsePost.ok) {
-        throw new Error("Something went wrong!");
-      }
-      const dataPost = await responsePost.json();
-      console.log(dataPost.user_table_id);
+  //       const responsePost = await fetch(`http://0.0.0.0:8000/posts/${id}`, {
+  //         method: "GET", // or 'PUT'
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           "Access-Control-Allow-Origin": "*",
+  //           "Access-Control-Allow-Credentials": "true",
+  //           "Access-Control-Allow-Methods": "GET, POST, PUT, OPTIONS",
+  //         },
+  //       });
+  //       if (!responsePost.ok) {
+  //         throw new Error("Something went wrong!");
+  //       }
+  //       const dataPost = await responsePost.json();
+  //       console.log(dataPost.user_table_id);
 
-      const blogDetails = [];
+  //       const blogDetails = [];
 
-      blogDetails.push({
-        userName: dataUser.user_name,
-        title: dataPost.title_of_post,
-        image: dataPost.image,
-        content: dataPost.content,
-        created_at: dataPost.created_at,
-        // openingText  data.Search[c].Year,
-        // releaseDate : data.Search[c].Year,
-      });
+  //       blogDetails.push({
+  //         userId: dataPost.user_table_id,
+  //         userName: dataUser.user_name,
+  //         title: dataPost.title_of_post,
+  //         image: dataPost.image,
+  //         content: dataPost.content,
+  //         created_at: dataPost.created_at,
+  //         // openingText  data.Search[c].Year,
+  //         // releaseDate : data.Search[c].Year,
+  //       });
 
-      // console.log(blogDetails[0].userName);
-      setBlogContent(blogDetails[0]);
-    } catch (e) {}
-  };
+  //       // console.log(blogDetails[0].userName);
+  //       setBlogContent(blogDetails[0]);
+  //     } catch (e) {}
+  //   };
   return (
     <>
       <nav className="flex items-center justify-between flex-wrap bg-sky-500 p-6">
@@ -68,12 +69,11 @@ export default function NavBar() {
         </div>
         <div className="w-full block flex-grow lg:flex lg:items-center lg:w-auto">
           <div className="text-sm lg:flex-grow">
-            <a
-              href={`components/PostBlog/MyEditor`}
-              className="block mt-4 lg:inline-block lg:mt-0 text-teal-200 hover:text-white mr-4"
-            >
-              Write
-            </a>
+            <Link href={`components/PostBlog/${id}`}>
+              <a className="block mt-4 lg:inline-block lg:mt-0 text-teal-200 hover:text-white mr-4">
+                Write
+              </a>
+            </Link>
           </div>
           <Menu as="div" className="relative ml-3">
             <div>
