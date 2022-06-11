@@ -5,21 +5,29 @@ import { useEffect, useState } from "react";
 const Profile = () => {
   const router = useRouter();
   const id = 2;
+  const [isDelete, setIsDelete] = useState(false);
   const [userProfile, setUserProfile] = useState([]);
   const [userPostsDetails, setUserPostsDetails] = useState([]);
 
-  const deleteHandler = async (pid) => {
-    const res = await fetch(`http://0.0.0.0:8000/deletepost/${pid}`, {
+  const deleteHandler = (pid) => {
+    fetch(`http://0.0.0.0:8000/deletepost/${pid}`, {
       method: "DELETE", // or 'PUT'
       headers: {
         "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Credentials": "true",
-        "Access-Control-Allow-Methods": "GET, POST, PUT, OPTIONS",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, OPTIONS, DELETE",
       },
-    });
-
-    const data = await res.text();
+    })
+      .then((res) => {
+        return res.text();
+      })
+      .then((data) => {
+        console.log(data);
+      });
+    // setIsDelete(!isDelete);
+    // console.log(data);
+    fetchUserData();
   };
 
   const fetchUserData = async () => {
@@ -282,7 +290,7 @@ const Profile = () => {
                     >
                       <button
                         onClick={() =>
-                          router.push(`/components/EditBlog/${id}`)
+                          router.push(`/components/EditBlog/${item.id}`)
                         }
                         class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full mr-2"
                       >

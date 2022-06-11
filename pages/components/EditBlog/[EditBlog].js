@@ -1,18 +1,83 @@
 import { Editor } from "@tinymce/tinymce-react";
 import React, { useRef, useState } from "react";
 import { useRouter } from "next/router";
+import { useEffect } from "react";
 
 export default function MyEditor() {
   const [blog, setBlog] = useState("");
   const router = useRouter();
+  const [titleBlog, setTitleBlog] = useState("");
+  const [error, setError] = useState(null);
+
   const editorRef = useRef(null);
   const id = 1;
-  const editBlogHandler = () => {
+  const pid = router.query.EditBlog;
+
+  const titleHandler = (e) => {
+    setTitleBlog(e.target.value);
+  };
+
+  const editBlogHandler = async () => {
     if (editorRef.current) {
       // console.log(editorRef.current.getContent());
-      setBlog(editorRef.current.getContent());
+      const cont = editorRef.current.getContent();
+      const splitCont = cont.split(/(<p>)/);
+      const finalSplit = splitCont[2].split("<");
+      console.log(finalSplit[0]);
+      setBlog(finalSplit[0]);
     }
+
+    const res = await fetch(`http://0.0.0.0:8000/editpost/${pid}`, {
+      method: "PUT", // or 'PUT'
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, OPTIONS",
+      },
+      body: JSON.stringify({
+        title_of_post: titleBlog,
+        content: blog,
+      }),
+    });
+
+    const data = await res.text();
+    router.push(`/`);
+
+    console.log(data);
   };
+
+  const fetchDetailsHandler = async () => {
+    const response = await fetch(`http://0.0.0.0:8000/posts/${pid}`, {
+      method: "GET", // or 'PUT'
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Credentials": "true",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, OPTIONS",
+      },
+    });
+    const data = await response.json();
+
+    const blogDetails = [];
+
+    blogDetails.push({
+      title: data.title_of_post,
+      image: data.image,
+      content: data.content,
+      // openingText  data.Search[c].Year,
+      // releaseDate : data.Search[c].Year,
+    });
+    // console.log(blogDetails[0].title);
+    // console.log(blogDetails[0].content);
+    setTitleBlog(blogDetails[0].title);
+    setBlog(blogDetails[0].content);
+  };
+
+  useEffect(() => {
+    fetchDetailsHandler();
+  }, []);
+
   return (
     <>
       <button
@@ -34,9 +99,25 @@ export default function MyEditor() {
           />
         </svg>
       </button>
+      <div>
+        <label
+          class="block uppercase tracking-wide text-gray-700 text-xl font-bold mb-2"
+          for="grid-password"
+        >
+          Enter Your Title
+        </label>
+        <input
+          onChange={titleHandler}
+          class="block w-full bg-gray-200 text-gray-700 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
+          id="grid-password"
+          type="text"
+          value={titleBlog}
+          required
+        />
+      </div>
       <Editor
         onInit={(evt, editor) => (editorRef.current = editor)}
-        initialValue="<p>Please Write the Heading in Bold and content in normal text</p>"
+        initialValue={`<p>${blog}</p>`}
         init={{
           height: 500,
           menubar: false,

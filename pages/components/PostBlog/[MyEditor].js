@@ -8,6 +8,7 @@ export default function MyEditor() {
   const [img, setImg] = useState("");
   const editorRef = useRef(null);
   const [titleBlog, setTitleBlog] = useState("");
+  const [error, setError] = useState(null);
   const id = router.query.MyEditor;
 
   const imgLink =
@@ -28,6 +29,7 @@ export default function MyEditor() {
       const splitCont = cont.split(/(<p>)/);
       const finalSplit = splitCont[2].split("<");
       setBlog(finalSplit[0]);
+
       // console.log(finalSplit[0]);
       // setBlog(editorRef.current.getContent());
     }
@@ -49,6 +51,11 @@ export default function MyEditor() {
     });
 
     const data = await res.text();
+    if (data.id == null) {
+      setError("Enter Title and content");
+    } else {
+      router.push(`/`);
+    }
 
     console.log(data);
   };
@@ -113,15 +120,23 @@ export default function MyEditor() {
         class="block mb-2 text-xl font-large text-gray-00 dark:text-gray-900 m-4"
         for="file_input"
       >
-        Upload Image
+        Paste Your Link Here
       </label>
 
       <input
         class="block w-full m-4 text-xl text-white-900 bg-blue-50 rounded-lg border border-white-300 cursor-pointer text-white-400 focus:outline-none dark:bg-blue-400 border-blue-300 placeholder-white-400  "
         id="file_input"
-        type="file"
+        type="text"
         onChange={imageFileHandler}
       ></input>
+      {error && (
+        <label
+          class="block mb-2 text-xl font-large text-gray-00 dark:text-gray-900 m-4"
+          for="file_input"
+        >
+          {error}
+        </label>
+      )}
       <button
         className="block w-full m-4 text-xl text-white-900 bg-blue-50 rounded-lg border border-white-300 cursor-pointer text-white-400 focus:outline-none dark:bg-blue-400 border-blue-300 placeholder-white-400 "
         onClick={editBlogHandler}
